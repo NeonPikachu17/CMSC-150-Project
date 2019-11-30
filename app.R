@@ -64,6 +64,16 @@ if(interactive()){
         tabPanel("User's Manual") ,fluid = TRUE)
 
   shinyServer <- (function(input, output) {
+    getData <- function(){
+      inFile <- input$file
+      
+      if(is.null(inFile)) return(NULL)
+      if(is.null(input$value)) return(NULL)
+      if(input$value <= 0) return("[!] Cannot Print! Degree is less than 0")
+      mat = as.matrix(read.csv(inFile$datapath, header = FALSE))
+      mat
+    }
+    
     output$contents <- renderDataTable({
       inFile <- input$file
       
@@ -74,14 +84,12 @@ if(interactive()){
     }, options = list(searching = FALSE))
     
     output$func <- renderText({
-      inFile <- input$file
-      
-      if(is.null(inFile)) return(NULL)
-      if(is.null(input$value)) return(NULL)
+      mat <- reactive({
+                getData()
+                x<-mat[,1] 
+                y<-mat[,2]
+                })
       if(input$value <= 0) return("[!] Cannot Print! Degree is less than 0")
-      mat = as.matrix(read.csv(inFile$datapath, header = FALSE))
-      x = mat[,1]
-      y = mat[,2]
       if(input$value >= length(x)) return("[!] Cannot Print! Degree is above the length of x")
       poly = PolynomialRegression(x, y, input$value)
       poly$function_string
