@@ -1,7 +1,7 @@
 #Simplex Method
 
 create <- function(){
-  v1 = c(200,5,6,7,8,9)
+  v1 = c(71,11,1,0,0,77)
   v2 = c(10,8,0,1,0,0,0,80)
   v3 = c(1,0,0,0,1,0,0,9)
 
@@ -57,8 +57,6 @@ create4 <- function(){
   mat[3,] = v3
   return(mat)
 }
-
-c
 
 mem = create4()
 
@@ -128,5 +126,7 @@ Simplex <- function(mat){
   return(mat)
 }
 
-
 Simplex(mem)
+
+
+data = data.frame()

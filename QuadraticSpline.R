@@ -33,24 +33,24 @@ generateMatrix <- function(matrix){
   colnames(qMatrix) = arr
   a1 = 0
   for(p in c(2:n)){
-      a = x[p]^2
-      b = x[p]
-      c = 1
-      for(m in c((p-1):p)){ # For condition 1 Equation
-        for(i in meh){   #Don't mind the triple for loop thankies
-          if(i == "a" && m == 1){
-          } else{
-            index = match(paste(i, m, sep = ""), arr)
-            if(i == "a") qMatrix[count, index] = a
-            else if(i == "b") qMatrix[count, index] = b
-            else if(i == "c") qMatrix[count, index] = c
-          }
+    a = x[p]^2
+    b = x[p]
+    c = 1
+    for(m in c((p-1):p)){ # For condition 1 Equation
+      for(i in meh){   #Don't mind the triple for loop thankies
+        if(i == "a" && m == 1){
+        } else{
+          index = match(paste(i, m, sep = ""), arr)
+          if(i == "a") qMatrix[count, index] = a
+          else if(i == "b") qMatrix[count, index] = b
+          else if(i == "c") qMatrix[count, index] = c
         }
-        qMatrix[count, ncol(qMatrix)] = y[p]
-        count = count + 1
       }
+      qMatrix[count, ncol(qMatrix)] = y[p]
+      count = count + 1
+    }
   }
-      
+  
   for(z in c(1,points)){ # For condition 2 Equation
     a = x[z]^2
     b = x[z]
@@ -94,7 +94,7 @@ generateMatrix <- function(matrix){
   return(qMatrix)
 }
 
-#Qudratic Spline Method
+#Quadratic Spline Method
 QuadraticSpline <- function(matrix){
   arr = createVariables(matrix)
   meow <- list(augcoeffmatrix = generateMatrix(matrix))
@@ -103,7 +103,3 @@ QuadraticSpline <- function(matrix){
   names(wew) = names = c("a1", arr[-length(arr)])
   return(wew)
 }
-
-mem = read.csv("docs/sampleQuadraticSpline.csv", header=FALSE)
-as.matrix(mem)
-QuadraticSpline(mem)

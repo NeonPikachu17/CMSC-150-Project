@@ -75,8 +75,3 @@ PolynomialRegression <- function(x, y, degree){       # Code in which uses all t
   }
   return(well) # Retruns the finished labelled list
 }
-
-mat = as.matrix(read.csv("~/Documents/test/docs/sampleRegressionCSV.csv", header = FALSE))
-x=mat[,1]
-y=mat[,2]
-
