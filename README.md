@@ -19,7 +19,7 @@ Creates a browser/website in which you are able to do the following methods:
 # SIMPLEX METHOD
 ## CHECKLIST
 - [X] Code
-- [ ] UI
+- [X] UI
 
 # USER'S MANUAL
 ## CHECKLIST
@@ -36,3 +36,8 @@ Creates a browser/website in which you are able to do the following methods:
 - Current Update has include rHandsontable for the table to be used in the simplex method UI
 - Quadratic Spline is missing the function to create a function
 - Polynomial Regression is fully functional
+
+## Version 1.75
+- Current Update already has working Simplex with working UI
+- Try to fix the UI
+* Currently thinking of changing to <shinyMaterial> instead of <shinydashboard>
