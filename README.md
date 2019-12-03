@@ -40,4 +40,4 @@ Creates a browser/website in which you are able to do the following methods:
 ## Version 1.75
 - Current Update already has working Simplex with working UI
 - Try to fix the UI
-* Currently thinking of changing to <shinyMaterial> instead of <shinydashboard>
+* Currently thinking of changing to *shinyMaterial* instead of *shinydashboard*
