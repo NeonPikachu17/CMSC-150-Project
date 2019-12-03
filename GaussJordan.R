@@ -20,9 +20,6 @@ swapping <- function (vector, count){           # Swaps the rows and removes the
   maxRow = c()                                  # Gets the maxRow 
   temp = c()              
   count2 = count
-  print("INITIAL VECTOR")
-  print(vector)                                 # Prints the initial Vector 
-  writeLines("\n")
   
   while (count2 < ncol(vector)){                # Swaps the vectors when it finds the maximum number of the three
     if (abs(vector[count2,count]) == vector2){
@@ -35,9 +32,6 @@ swapping <- function (vector, count){           # Swaps the rows and removes the
     }
     count2 = count2 + 1
   }
-  print("SWAPPED VECTOR")
-  print(vector)
-  writeLines("\n")
   return(vector)
 }
 
@@ -56,22 +50,13 @@ gjelim <- function(matrix, verbose = T){            # The Gauss - Jordan Elimina
       matrix = swapping(matrix, count)              # Swaps the matrix
       print(matrix)
       pivot_row = matrix[count, ]       
-      pivot_element = matrix[count,count]           # Gets Pivot Row and Pivot Element
-      print("Pivot Row:")                   
-      print(pivot_row)
-      print("Pivot Element:")
-      print(pivot_element)
-      print("Multiplier")               
+      pivot_element = matrix[count,count]           # Gets Pivot Row and Pivot Element             
       normalized_row = pivot_row/pivot_element      # Gets Normalized Row
       print(normalized_row)                         # Shows the components of the matrix
       matrix[count, ] = normalized_row
       while (count2 <= nrow(matrix)){               # Iteration for normalizing equations
         if(count2 != count){
-          print(paste("Row", count2, sep=" "))
-          print(matrix)
           vector3 = normalized_row * matrix[count2, count]  # Multiplies the first element of the matrix to the normalized row
-          print("Vector to Subtract")                   
-          print(vector3)
           matrix[count2, ] = matrix[count2, ] - vector3     # Subtracts the normalized equation to the matrix row itself
         } else {
           print("SKIPPING")             # Skips when count == count2

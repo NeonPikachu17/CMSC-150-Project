@@ -1,7 +1,9 @@
 library(shiny)
 library(shinydashboard)
 library(rhandsontable)
+#source("AugCoeffMatrix.R")
 source("PolynomialRegression.R")
+source("Simplex.R")
 source("QuadraticSpline.R")
 
 if(interactive()){
@@ -28,14 +30,16 @@ if(interactive()){
                              h3("Degree of Function"), 
                              value = NULL),
                 h3("Function"),
-                textOutput("func"),
+                textOutput("func")
+              ),
+                #tags$br(),
+              box(
                 numericInput(("degree"), 
                              h3("Value to Determine"), 
                              value = NULL),
                 h3("Value"),
-                textOutput("updated"),
-                submitButton("Update Values")
-              ),
+                textOutput("updated")),
+                actionButton("update", "Update"),
               box(
                 h3("Plotted Graph"),
                 plotOutput("plot")
@@ -49,38 +53,91 @@ if(interactive()){
               box(h3("Estimated Value"),
                   numericInput(("degree"), 
                                h3("Value to Determine"), 
-                               value = NULL),
-                  actionButton("update", "Update")
+                               value = NULL)
               )
       ),
       tabItem(tabName = "Simplex",
               box(
                 helpText("Fairways Wood Company Shipping Analysis"),
-                rHandsontableOutput("table1"),
-                actionButton("saveBtn", "Save"))
-              )
+                rHandsontableOutput("table"),
+                actionButton("potatoMiner", "Save")
+              ),
+              tableOutput("matrix")
+      )
     )
-  )
+  ) 
   
-  ui <- dashboardPage(
+  ui <- dashboardPage( skin = "black",
           dashboardHeader(title = "Work In Progress"),
           sideBar,
-          body)
-                    
+          body
+  )
   
-  shinyServer <- (function(input, output) {
-    
-    Plants <- c('Denver', 'Phoenix', 'Dallas',NA)
+  shinyServer <- (function(session, input, output) {
+    Plants <- c('Denver', 'Phoenix', 'Dallas', NA)
     Supply <- c('310','260','280','Demands')
     SAC <- c('10', '6', '3', '180')
     SLC <- c('8', '5', '4', '80')
     ALB <- c('6', '4', '5', '200')
     NM <- c('5', '3', '5', '160')
     NYC <- c('4', '6', '9', '220')
-    df1 = data.frame(Plants = Plants, Supply = Supply, Sacramento = SAC, Albaquerque = ALB, "New Mexico" = NM, "New York City" = NYC)
+    df = data.frame(Plants = Plants, Supply = Supply, Sacramento = SAC, "Salt Lake City" = SLC, Albaquerque = ALB, "New Mexico" = NM, "New York City" = NYC, stringsAsFactors = FALSE)
+    datavalues <- reactiveValues(data=df)
+    
+    observeEvent(input$table$changes$changes, {
+      datavalues$data <- hot_to_r(input$table)
+    })
     
     
-    datavalues <- reactiveValues(data=df1)
+    observeEvent(input$potatoMiner, {
+      functions <- list(obj = stringFunction(paste("function(X11, X21, X31, X12, X22, X32, X13, X23, X33, X14, X24, X34, X15, X25, X35) ", datavalues$data[[3]][1], " * X11 + ", datavalues$data[[3]][2], " * X21 + ", datavalues$data[[3]][3], " * X31 + ",
+                                                   datavalues$data[[4]][1], " * X12 + ", datavalues$data[[4]][2], " * X22 + ", datavalues$data[[4]][3], " * X32 + ",
+                                                   datavalues$data[[5]][1], " * X13 + ", datavalues$data[[5]][2], " * X23 + ", datavalues$data[[5]][3], " * X33 + ",
+                                                   datavalues$data[[6]][1], " * X14 + ", datavalues$data[[6]][2], " * X24 + ", datavalues$data[[6]][3], " * X34 + ",
+                                                   datavalues$data[[7]][1], " * X15 + ", datavalues$data[[7]][2], " * X25 + ", datavalues$data[[7]][3], " * X35 + Z", sep = ""
+      )),
+      const1 = stringFunction(paste("function (X11, X21, X31, X12, X22, X32, X13, X23, X33, X14, X24, X34, X15, X25, X35, Z) X11 + X12 + X13 + X14 + X15 = ", 
+                                    datavalues$data[[2]][1], sep = "")),
+      const2 = stringFunction(paste("function (X11, X21, X31, X12, X22, X32, X13, X23, X33, X14, X24, X34, X15, X25, X35, Z) X21 + X22 + X23 + X24 + X25 = ",
+                                    datavalues$data[[2]][2], sep = "")),
+      const3 = stringFunction(paste("function (X11, X21, X31, X12, X22, X32, X13, X23, X33, X14, X24, X34, X15, X25, X35, Z) X31 + X32 + X33 + X34 + X35 = ",
+                                    datavalues$data[[2]][3], sep = "")),
+      const4 = stringFunction(paste("function (X11, X21, X31, X12, X22, X32, X13, X23, X33, X14, X24, X34, X15, X25, X35, Z) X11 + X21 + X31 = ",
+                                    datavalues$data[[3]][4], sep = "")),
+      const5 = stringFunction(paste("function (X11, X21, X31, X12, X22, X32, X13, X23, X33, X14, X24, X34, X15, X25, X35, Z) X12 + X22 + X32 = ",
+                                    datavalues$data[[4]][4], sep = "")),
+      const6 = stringFunction(paste("function (X11, X21, X31, X12, X22, X32, X13, X23, X33, X14, X24, X34, X15, X25, X35, Z) X13 + X23 + X33 = ",
+                                    datavalues$data[[5]][4], sep = "")),
+      const7 = stringFunction(paste("function (X11, X21, X31, X12, X22, X32, X13, X23, X33, X14, X24, X34, X15, X25, X35, Z) X14 + X24 + X34 = ",
+                                    datavalues$data[[6]][4], sep = "")),
+      const8 = stringFunction(paste("function (X11, X21, X31, X12, X22, X32, X13, X23, X33, X14, X24, X34, X15, X25, X35, Z) X15 + X25 + X35 = ",
+                                    datavalues$data[[7]][4], sep = ""))
+      )
+      #write.table(datavalues$data, file = "simplex.csv", row.names = FALSE, col.names = FALSE, sep=",")
+      matrix = matrix(0, length(functions), length(c(checkFunctions(functions), "RHS")))
+      rownames(matrix) = c(1:length(functions))
+      colnames(matrix) = c(checkFunctions(functions), "RHS")
+      matrix[1,] = c(-1,0,0,-1,0,0,-1,0,0,-1,0,0,-1,0,0,(as.numeric(datavalues$data[[2]][1])) * (-1))
+      matrix[2,] = c(0,-1,0,0,-1,0,0,-1,0,0,-1,0,0,-1,0,(as.numeric(datavalues$data[[2]][2])) * (-1))
+      matrix[3,] = c(0,0,-1,0,0,-1,0,0,-1,0,0,-1,0,0,-1,(as.numeric(datavalues$data[[2]][3])) * (-1))
+      matrix[4,] = c(1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,as.numeric(datavalues$data[[3]][4]))
+      matrix[5,] = c(0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,as.numeric(datavalues$data[[4]][4]))
+      matrix[6,] = c(0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,as.numeric(datavalues$data[[5]][4]))
+      matrix[7,] = c(0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,as.numeric(datavalues$data[[6]][4]))
+      matrix[8,] = c(0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,as.numeric(datavalues$data[[7]][4]))
+      matrix[9,] = c(as.numeric(datavalues$data[[3]][1]), as.numeric(datavalues$data[[3]][2]), as.numeric(datavalues$data[[3]][3]), 
+                   as.numeric(datavalues$data[[4]][1]), as.numeric(datavalues$data[[4]][2]), as.numeric(datavalues$data[[4]][3]), 
+                   as.numeric(datavalues$data[[5]][1]), as.numeric(datavalues$data[[5]][2]), as.numeric(datavalues$data[[5]][3]),
+                   as.numeric(datavalues$data[[6]][1]), as.numeric(datavalues$data[[6]][2]), as.numeric(datavalues$data[[6]][3]),
+                   as.numeric(datavalues$data[[7]][1]), as.numeric(datavalues$data[[7]][2]), as.numeric(datavalues$data[[7]][3]), 1)
+      
+      #mat = Simplex(matrix)
+      output$matrix <- renderTable({
+        matrix = Simplex(matrix)
+        matrix
+      })
+    })
+    
     # For Polynomial Regression Page
     output$contents <- renderDataTable({
       inFile <- input$file
@@ -91,50 +148,30 @@ if(interactive()){
       read.csv(inFile$datapath, header = FALSE) # For loading of .csv file to the program
     }, options = list(searching = FALSE))
     
-    output$func <- renderText({
-      inFile = input$file
-      req(input$value)
-      if(is.null(input$file)) return(NULL)
-      mat = as.matrix(read.csv(inFile$datapath, header = FALSE))
-      x = mat[,1]
-      y = mat[,2]
-      if(input$value <= 0) return("[!] Cannot Print! Degree is less than 0")
-      if(input$value >= length(x)) return("[!] Cannot Print! Degree is above the length of x")
-      poly = PolynomialRegression(x, y, input$value)
-      poly$function_string
-    })
-    
-    output$updated <- renderText({
-      inFile = input$file
-      req(input$value)
-      req(input$degree)
-      if(is.null(input$file)) return(NULL)
-      mat = as.matrix(read.csv(inFile$datapath, header = FALSE))
-      x = mat[,1]
-      y = mat[,2]
-      if(is.null(input$value)) return(NULL)
-      if(is.null(input$degree)) return(NULL)
-      if(input$value <= 0) return("[!] Cannot Print! Degree is less than 0")
-      poly = PolynomialRegression(x, y, input$value)
-      poly$function_function(input$degree)
-    })
-    
-    output$plot <- renderPlot({
-      inFile <- input$file
-      req(input$value)
-      req(input$degree)
-      if(is.null(inFile)) return(NULL)
-      mat = as.matrix(read.csv(inFile$datapath, header = FALSE))
-      x = mat[,1]
-      y = mat[,2]
-      if(is.null(input$value)) return(NULL)
-      if(is.null(input$degree)) return(NULL)
-      if(input$value <= 0) return("[!] Cannot Print! Degree is less than 0")
-      poly = PolynomialRegression(x, y, input$value)
-      polyplot <- poly$function_function
-      plot(x, y, col="red")
-      lines(x, polyplot(x), pch=4, col="blue")
-      poly$function_function(input$degree)
+    observeEvent(input$update, {
+        inFile = input$file
+        req(input$value)
+        if(is.null(input$file)) return(NULL)
+        mat = as.matrix(read.csv(inFile$datapath, header = FALSE))
+        x = mat[,1]
+        y = mat[,2]
+        if(input$value <= 0) return("[!] Cannot Print! Degree is less than 0")
+        if(input$value >= length(x)) return("[!] Cannot Print! Degree is above the length of x")
+        poly = PolynomialRegression(x, y, input$value)
+      output$func <- renderText({
+        poly$function_string
+      })
+      
+      output$updated <- renderText({
+        poly$function_function(input$degree)
+      })
+      
+      output$plot <- renderPlot({
+        polyplot <- poly$function_function
+        plot(x, y, col="red")
+        lines(x, polyplot(x), pch=4, col="blue")
+        poly$function_function(input$degree)
+      })
     })
     
     # For Quadratic Spline Page
@@ -148,8 +185,8 @@ if(interactive()){
     }, options = list(searching = FALSE))
     
     # For Simplex Method
-    output$table1 <- renderRHandsontable({
-      rhandsontable(datavalues$data, width = 700, height = 300, selectCallback = TRUE) %>% 
+    output$table <- renderRHandsontable({
+      rhandsontable(datavalues$data, width = 700, height = 150, selectCallback = TRUE) %>% 
         hot_col("Plants", readOnly = TRUE) %>%
         hot_col(1:5, type = "autocomplete", strict = FALSE) %>%
         hot_cols(renderer = "
@@ -158,31 +195,13 @@ if(interactive()){
                   if(row === 3 && col === 1){
                       cellProperties.readOnly = true;
                   }
-                 return td,  cellProperties;
+                  return td, cellProperties;
                  }")
     })
-    
-    observeEvent(
-      input$df1$changes$changes,{
-        x = input$table1$changes$changes[[1]][[1]]
-        y = input$table1$changes$changes[[1]][[2]]
-        old = input$table1$changes$changes[[1]][[3]]
-        new = input$table1$changes$changes[[1]][[4]]
-        
-        output$changeinfo <- renderPrint({
-          list(paste("Row index to be changed", x),
-               paste("Column index to be changed", y),
-               paste("old value to be changed", old),
-               paste("new value to be changed", new))
-        })
-      }
-    )
-    
-    observeEvent(input$saveBtn, 
-                 write.csv(hot_to_r(input$table), file = "MyData.csv", row.names = FALSE))
   })
-  
+    
   # Run the application 
   shinyApp(ui = ui, server = shinyServer)
   
 }
+
