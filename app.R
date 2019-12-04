@@ -1,7 +1,6 @@
 library(shiny)
 library(shinydashboard)
 library(rhandsontable)
-#source("AugCoeffMatrix.R")
 source("PolynomialRegression.R")
 source("Simplex.R")
 source("QuadraticSpline.R")
@@ -50,19 +49,44 @@ if(interactive()){
                   h3("Data frame"),
                   dataTableOutput("quad")
                   ),
-              box(h3("Estimated Value"),
-                  numericInput(("degree"), 
+              box(h3("Function Per Interval"),
+                  textOutput("out1"), 
+                  br(),
+                  textOutput("out2"), 
+                  br(),
+                  textOutput("out3")
+                  ),
+              box(
+                  numericInput(("qDegree"), 
                                h3("Value to Determine"), 
                                value = NULL)
-              )
-      ),
+                )
+              ),
       tabItem(tabName = "Simplex",
+              fluidRow(
+                h1("Simplex Method", align = "center"),
+                br(),
               box(
+                title = "Input Table",
+                status = "primary",
                 helpText("Fairways Wood Company Shipping Analysis"),
                 rHandsontableOutput("table"),
-                actionButton("potatoMiner", "Save")
+                checkboxInput("solution", "Show Solution", FALSE),
+                actionButton("potatoMiner", "Run"),
+                collapsible = TRUE, solidHeader = TRUE
+                ,width = 10
               ),
-              tableOutput("matrix")
+              box(
+                title = "Minimized Cost",
+                h5(textOutput("textext"))
+              ),
+              box(
+                title = "Solution",
+                verbatimTextOutput("sol"), collapsible = TRUE,
+                solidHeader = TRUE
+              )
+                
+              )
       )
     )
   ) 
@@ -130,11 +154,21 @@ if(interactive()){
                    as.numeric(datavalues$data[[5]][1]), as.numeric(datavalues$data[[5]][2]), as.numeric(datavalues$data[[5]][3]),
                    as.numeric(datavalues$data[[6]][1]), as.numeric(datavalues$data[[6]][2]), as.numeric(datavalues$data[[6]][3]),
                    as.numeric(datavalues$data[[7]][1]), as.numeric(datavalues$data[[7]][2]), as.numeric(datavalues$data[[7]][3]), 1)
-      
+      pen = matrix
+
       #mat = Simplex(matrix)
-      output$matrix <- renderTable({
-        matrix = Simplex(matrix)
-        matrix
+      if(input$solution){
+        output$sol <- renderPrint({
+          Simplex(pen)
+        })
+      }
+    
+      matrix = Simplex(matrix)
+        output$textext <- renderText({
+          if(is.null(matrix)) {
+            "No Feasible Solution"
+          }
+          paste("Minimized cost is: ", matrix[nrow(matrix), ncol(matrix)])
       })
     })
     
@@ -184,9 +218,30 @@ if(interactive()){
       read.csv(inFile$datapath, header = FALSE) # For loading of .csv file to the program
     }, options = list(searching = FALSE))
     
+    output$out1 <- renderText({
+      if(is.null(input$quadratic)) return(NULL)
+      meow = read.csv(input$quadratic$datapath, header = FALSE)
+      y = QuadraticSpline(meow)
+      paste("Function 1 = ",y[1],sep="")
+    })
+    
+    output$out2 <- renderText({
+      if(is.null(input$quadratic)) return(NULL)
+      meow = read.csv(input$quadratic$datapath, header = FALSE)
+      y = QuadraticSpline(meow)
+      paste("Function 2 = ",y[2],sep="")
+    })
+    
+    output$out3 <- renderText({
+      if(is.null(input$quadratic)) return(NULL)
+      meow = read.csv(input$quadratic$datapath, header = FALSE)
+      y = QuadraticSpline(meow)
+      paste("Function 3 = ",y[3],sep="")
+    })
+    
     # For Simplex Method
     output$table <- renderRHandsontable({
-      rhandsontable(datavalues$data, width = 700, height = 150, selectCallback = TRUE) %>% 
+      rhandsontable(datavalues$data, width = 1000, height = 200, stretchH = "all",selectCallback = TRUE) %>% 
         hot_col("Plants", readOnly = TRUE) %>%
         hot_col(1:5, type = "autocomplete", strict = FALSE) %>%
         hot_cols(renderer = "

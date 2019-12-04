@@ -45,17 +45,21 @@ createSlacks <- function(mat){
 
 Simplex <- function(mat){
   # Dual Problem
+  print("Initial Matrix")
+  print(mat)
   mat = t(mat)
   mat = createSlacks(mat)
+  print("Transposed")
+  print(mat)
   while(1){
     if(all(mat[nrow(mat),] >= 0)) break 
-    print(mat)
     lis = checkCol(mat)
     row = lis$x
     col = lis$y
     pivot_row = mat[row,]
     pivot_element = mat[row,col]
     print(paste("Pivot Element: ", pivot_element, sep = ""))
+    if(pivot_element == 0) return(NULL)
     normalized_row = pivot_row/pivot_element
     print(paste("Normalized Row: ", normalized_row, sep = ""))
     mat[row,] = normalized_row

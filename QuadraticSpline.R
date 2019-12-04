@@ -94,6 +94,22 @@ generateMatrix <- function(matrix){
   return(qMatrix)
 }
 
+createFunction <- function(vector){
+  func_list = c()
+  for(i in c(1:3)){
+    if(i == 1){
+      mem = paste("function (x) ", vector[2], " * x + ", vector[3], sep = "")
+    } else if(i==2){
+      mem = paste("function (x) ", vector[4], " * x^2 + ", vector[5], " * x + ", vector[6], sep = "")
+    } else{
+      mem = paste("function (x) ", vector[7], " * x^2 + ", vector[8], " * x + ", vector[9], sep = "")
+    }
+    
+    func_list = c(func_list, mem)
+  }
+  return(func_list)
+}
+
 #Quadratic Spline Method
 QuadraticSpline <- function(matrix){
   arr = createVariables(matrix)
@@ -101,5 +117,8 @@ QuadraticSpline <- function(matrix){
   wew = GaussJordan(meow)
   wew = c(0, wew)
   names(wew) = names = c("a1", arr[-length(arr)])
+  wew = createFunction(wew)
   return(wew)
 }
+
+mem = read.csv("/home/neo/Documents/test/docs/sampleQuadraticSpline.csv", header = FALSE)
