@@ -13,8 +13,8 @@ Creates a browser/website in which you are able to do the following methods:
 
 # QUADRATIC SPLINE INTERPOLATION
 ## CHECKLIST
-- [X] Code <Partly Done>
-- [ ] UI
+- [X] Code 
+- [X] UI *Partly Done*
 
 # SIMPLEX METHOD
 ## CHECKLIST
@@ -41,3 +41,10 @@ Creates a browser/website in which you are able to do the following methods:
 - Current Update already has working Simplex with working UI
 - Try to fix the UI
 * Currently thinking of changing to *shinyMaterial* instead of *shinydashboard*
+
+## Version 2.00
+- Already working Simplex
+- Fixed UI
+- Skipped on changing UI 
+* Only missing Quadratic Spline UI
+
